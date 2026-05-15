@@ -19,9 +19,9 @@
     "title": "Building bots that work while you sleep",
     "description": "I'm a 19-year-old developer specializing in Telegram bot development. I create robust, production-ready bots — from complex task-management systems to real-estate search engines and automated group scanners. Beyond bots, I handle full server integration, deployment with Docker, monitoring with Grafana & Prometheus, and ongoing maintenance. I'm also a cybersecurity red team enthusiast, which means I build with security in mind from day one.",
     "stats": {
-      "experience": "Years of Development",
-      "projects": "Bots Delivered",
-      "clients": "Happy Clients",
+      "technologies": "Technologies Used",
+      "projects": "Projects Delivered",
+      "containers": "Containers Running",
       "bots": "Bots in Production"
     }
   },

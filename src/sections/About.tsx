@@ -27,9 +27,9 @@ function AnimatedCounter({ target, suffix = '' }: { target: number; suffix?: str
 }
 
 const stats = [
-  { value: 3, suffix: '+', key: 'experience' },
+  { value: 15, suffix: '+', key: 'technologies' },
   { value: 4, suffix: '', key: 'projects' },
-  { value: 4, suffix: '+', key: 'clients' },
+  { value: 6, suffix: '+', key: 'containers' },
   { value: 4, suffix: '', key: 'bots' },
 ];
 

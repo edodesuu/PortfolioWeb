@@ -40,10 +40,8 @@ export default function Navbar() {
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-14 sm:h-16 lg:h-20">
-            {/* Logo */}
-            <a href="#hero" className="font-display text-lg sm:text-xl font-bold tracking-wide text-white/90 hover:text-white transition-colors duration-500">
-              墨
-            </a>
+            {/* Spacer where logo was */}
+            <div className="w-4" />
 
             {/* Desktop nav */}
             <div className="hidden md:flex items-center gap-6 lg:gap-10">

@@ -1,32 +1,27 @@
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import { fadeInUp, fadeInScale, staggerContainer, staggerItem } from '../lib/animations';
+import { fadeInUp, staggerContainer } from '../lib/animations';
+import TerminalBackground from '../components/TerminalBackground';
 
 export default function Hero() {
   const { t } = useTranslation();
 
   return (
     <section id="hero" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
-      {/* Background */}
-      <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
-        <div className="enso animate-float" style={{ position: 'absolute', top: '-80px', right: '-80px', width: '380px', height: '380px', opacity: 0.25 }} />
-        <div className="enso" style={{ position: 'absolute', bottom: '25%', left: '8%', width: '140px', height: '140px', opacity: 0.12, animationDelay: '3s' }} />
-      </div>
+      {/* Terminal boot sequence background */}
+      <TerminalBackground />
+
+      {/* Dark overlay */}
+      <div style={{
+        position: 'absolute',
+        inset: 0,
+        background: 'rgba(0, 0, 0, 0.7)',
+        zIndex: 1,
+      }} />
 
       {/* Content */}
       <motion.div variants={staggerContainer} initial="hidden" animate="visible"
         style={{ position: 'relative', zIndex: 10, textAlign: 'center', padding: '0 2rem', maxWidth: '720px', margin: '0 auto' }}>
-
-        {/* Avatar */}
-        <motion.div variants={fadeInScale} style={{ marginBottom: '2.5rem', display: 'flex', justifyContent: 'center' }}>
-          <div style={{ position: 'relative' }}>
-            <div style={{ position: 'absolute', inset: '-12px', borderRadius: '50%', border: '1px solid rgba(255,255,255,0.06)' }} />
-            <div style={{ position: 'absolute', inset: '-24px', borderRadius: '50%', border: '1px solid rgba(255,255,255,0.03)' }} />
-            <div style={{ width: '120px', height: '120px', borderRadius: '50%', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <span className="font-display" style={{ fontSize: '1.75rem', fontWeight: 700, color: 'rgba(255,255,255,0.2)' }}>CL</span>
-            </div>
-          </div>
-        </motion.div>
 
         {/* Name */}
         <motion.h1 variants={fadeInUp} className="font-display"
@@ -59,7 +54,7 @@ export default function Hero() {
 
       {/* Scroll */}
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 2.5, duration: 1.5 }}
-        style={{ position: 'absolute', bottom: '40px', left: '50%', transform: 'translateX(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+        style={{ position: 'absolute', bottom: '40px', left: '50%', transform: 'translateX(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', zIndex: 10 }}>
         <span style={{ fontSize: '9px', letterSpacing: '0.4em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.12)', fontWeight: 500 }}>scroll</span>
         <div className="animate-scroll-hint" style={{ width: '1px', height: '36px', background: 'linear-gradient(to bottom, rgba(255,255,255,0.12), transparent)' }} />
       </motion.div>
