@@ -10,6 +10,7 @@ export interface Project {
   description_ru: string;
   badge?: string;
   tags: string[];
+  cover?: string; // cover image — displayed on card
   screenshots: string[];
   githubUrl?: string;
   liveUrl?: string;

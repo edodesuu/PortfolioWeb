@@ -58,11 +58,24 @@ function ProjectEditor({ project, onSave, onCancel }: {
 }) {
   const empty: Project = {
     id: '', title: '', title_ru: '', description: '', description_ru: '',
-    badge: '', tags: [], screenshots: [], githubUrl: '', liveUrl: '', featured: true,
+    badge: '', tags: [], cover: '', screenshots: [], githubUrl: '', liveUrl: '', featured: true,
   };
   const [form, setForm] = useState<Project>(project || empty);
   const [tagInput, setTagInput] = useState(form.tags.join(', '));
   const [screenshotInput, setScreenshotInput] = useState('');
+  const [coverInput, setCoverInput] = useState('');
+
+  const handleCoverUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => { if (reader.result) update('cover', reader.result as string); };
+    reader.readAsDataURL(file);
+  };
+
+  const addCoverPath = () => {
+    if (coverInput.trim()) { update('cover', coverInput.trim()); setCoverInput(''); }
+  };
 
   const update = (key: keyof Project, value: unknown) => setForm({ ...form, [key]: value });
 
@@ -110,6 +123,25 @@ function ProjectEditor({ project, onSave, onCancel }: {
           <label style={labelStyle}>Badge</label>
           <input style={inputStyle} value={form.badge || ''} onChange={(e) => update('badge', e.target.value)} placeholder="Open Source, Commercial, Private" />
         </div>
+
+        {/* Cover */}
+        <div>
+          <label style={labelStyle}>Cover / Обложка</label>
+          {form.cover && (
+            <div style={{ width: '200px', height: '125px', position: 'relative', border: '1px solid rgba(255,255,255,0.08)', overflow: 'hidden', marginBottom: '0.75rem' }}>
+              <img src={form.cover} alt="Cover" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              <button onClick={() => update('cover', '')} style={{ position: 'absolute', top: '2px', right: '2px', background: 'rgba(0,0,0,0.8)', color: '#e84040', border: 'none', cursor: 'pointer', fontSize: '14px', width: '20px', height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
+            </div>
+          )}
+          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '0.5rem' }}>
+            <input style={{ ...inputStyle, flex: 1 }} value={coverInput} onChange={(e) => setCoverInput(e.target.value)} placeholder="URL or file path" />
+            <button onClick={addCoverPath} style={btnOutline}>Set</button>
+          </div>
+          <label style={{ ...btnOutline, display: 'inline-block', textAlign: 'center', cursor: 'pointer' }}>
+            Upload Cover <input type="file" accept="image/*" onChange={handleCoverUpload} style={{ display: 'none' }} />
+          </label>
+        </div>
+
         {/* EN Description */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
           <div>
