@@ -1,18 +1,21 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
+import { useNavigate, useLocation } from 'react-router-dom';
 import LanguageSwitcher from './LanguageSwitcher';
 
 const navLinks = [
-  { key: 'home', href: '#hero' },
-  { key: 'about', href: '#about' },
-  { key: 'services', href: '#services' },
-  { key: 'projects', href: '#projects' },
-  { key: 'contact', href: '#contact' },
+  { key: 'home', target: 'hero' },
+  { key: 'about', target: 'about' },
+  { key: 'services', target: 'services' },
+  { key: 'projects', target: 'projects' },
+  { key: 'contact', target: 'contact' },
 ];
 
 export default function Navbar() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -22,11 +25,23 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Lock body scroll when mobile menu is open
   useEffect(() => {
     document.body.style.overflow = mobileOpen ? 'hidden' : '';
     return () => { document.body.style.overflow = ''; };
   }, [mobileOpen]);
+
+  const scrollTo = useCallback((target: string) => {
+    setMobileOpen(false);
+    // If not on home page, navigate first then scroll
+    if (location.pathname !== '/') {
+      navigate('/');
+      setTimeout(() => {
+        document.getElementById(target)?.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    } else {
+      document.getElementById(target)?.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [location.pathname, navigate]);
 
   return (
     <>
@@ -40,44 +55,33 @@ export default function Navbar() {
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-14 sm:h-16 lg:h-20">
-            {/* Spacer where logo was */}
             <div className="w-4" />
 
             {/* Desktop nav */}
             <div className="hidden md:flex items-center gap-6 lg:gap-10">
               {navLinks.map((link) => (
-                <a
+                <button
                   key={link.key}
-                  href={link.href}
-                  className="relative text-[11px] uppercase tracking-[0.3em] text-white/30 hover:text-white/90 transition-all duration-500 group"
+                  onClick={() => scrollTo(link.target)}
+                  className="relative text-[11px] uppercase tracking-[0.3em] text-white/30 hover:text-white/90 transition-all duration-500 group cursor-pointer bg-transparent border-none"
                 >
                   {t(`nav.${link.key}`)}
                   <span className="absolute -bottom-1 left-0 w-0 h-px bg-white/40 group-hover:w-full transition-all duration-500" />
-                </a>
+                </button>
               ))}
             </div>
 
             {/* Right */}
             <div className="flex items-center gap-3 sm:gap-4">
               <LanguageSwitcher />
-
               <button
                 onClick={() => setMobileOpen(!mobileOpen)}
                 className="md:hidden flex flex-col gap-1.5 p-2 cursor-pointer"
                 aria-label="Menu"
               >
-                <motion.span
-                  animate={mobileOpen ? { rotate: 45, y: 7 } : { rotate: 0, y: 0 }}
-                  className="block w-6 h-px bg-white/70"
-                />
-                <motion.span
-                  animate={mobileOpen ? { opacity: 0, scaleX: 0 } : { opacity: 1, scaleX: 1 }}
-                  className="block w-4 h-px bg-white/40"
-                />
-                <motion.span
-                  animate={mobileOpen ? { rotate: -45, y: -7 } : { rotate: 0, y: 0 }}
-                  className="block w-6 h-px bg-white/70"
-                />
+                <motion.span animate={mobileOpen ? { rotate: 45, y: 7 } : { rotate: 0, y: 0 }} className="block w-6 h-px bg-white/70" />
+                <motion.span animate={mobileOpen ? { opacity: 0, scaleX: 0 } : { opacity: 1, scaleX: 1 }} className="block w-4 h-px bg-white/40" />
+                <motion.span animate={mobileOpen ? { rotate: -45, y: -7 } : { rotate: 0, y: 0 }} className="block w-6 h-px bg-white/70" />
               </button>
             </div>
           </div>
@@ -92,25 +96,20 @@ export default function Navbar() {
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             transition={{ duration: 0.5 }}
             className="fixed inset-0 z-40 bg-black/98 backdrop-blur-2xl md:hidden flex flex-col items-center justify-center gap-8"
           >
             {navLinks.map((link, i) => (
-              <motion.a
+              <motion.button
                 key={link.key}
-                href={link.href}
-                onClick={() => setMobileOpen(false)}
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 30 }}
+                onClick={() => scrollTo(link.target)}
+                initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 30 }}
                 transition={{ delay: i * 0.1, duration: 0.6 }}
-                className="font-display text-xl font-medium tracking-[0.2em] uppercase text-white/40 hover:text-white/90 transition-colors duration-500"
+                className="font-display text-xl font-medium tracking-[0.2em] uppercase text-white/40 hover:text-white/90 transition-colors duration-500 bg-transparent border-none cursor-pointer"
               >
                 {t(`nav.${link.key}`)}
-              </motion.a>
+              </motion.button>
             ))}
           </motion.div>
         )}

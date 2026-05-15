@@ -2,12 +2,13 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import SectionWrapper from '../components/SectionWrapper';
-import { getFeaturedProjects } from '../lib/store';
+import { getFeaturedProjects, localized } from '../lib/store';
 import { staggerContainer, staggerItem, fadeInUp, viewportConfig } from '../lib/animations';
 
 export default function Projects() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const projects = getFeaturedProjects();
+  const lang = i18n.language;
 
   return (
     <SectionWrapper id="projects" label={t('projects.label')} title={t('projects.title')}>
@@ -17,10 +18,9 @@ export default function Projects() {
           <motion.div key={project.id} variants={staggerItem}>
             <Link to={`/project/${project.id}`} style={{ textDecoration: 'none', display: 'block', border: '1px solid rgba(255,255,255,0.06)', overflow: 'hidden', transition: 'border-color 0.5s' }}
               className="group hover:border-white/[0.12]">
-              {/* Image */}
               <div style={{ aspectRatio: '16/10', background: 'rgba(255,255,255,0.02)', position: 'relative', overflow: 'hidden' }}>
                 {project.screenshots.length > 0 ? (
-                  <img src={project.screenshots[0]} alt={project.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <img src={project.screenshots[0]} alt={localized(project, 'title', lang)} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 ) : (
                   <>
                     <div className="dot-grid" style={{ position: 'absolute', inset: 0, opacity: 0.3 }} />
@@ -30,7 +30,6 @@ export default function Projects() {
                   </>
                 )}
               </div>
-              {/* Content */}
               <div style={{ padding: '1.75rem' }}>
                 {project.badge && (
                   <span style={{ fontSize: '10px', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', display: 'inline-block', marginBottom: '0.5rem', fontWeight: 500 }}>
@@ -38,10 +37,10 @@ export default function Projects() {
                   </span>
                 )}
                 <h3 className="font-display" style={{ fontSize: '1.35rem', fontWeight: 600, color: 'rgba(255,255,255,0.85)', marginBottom: '0.5rem' }}>
-                  {project.title}
+                  {localized(project, 'title', lang)}
                 </h3>
                 <p style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.3)', lineHeight: 1.7, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden', marginBottom: '1rem' }}>
-                  {project.description}
+                  {localized(project, 'description', lang)}
                 </p>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
                   {project.tags.map((tag) => (
@@ -56,11 +55,10 @@ export default function Projects() {
         ))}
       </motion.div>
 
-      {/* All Projects button */}
       <motion.div variants={fadeInUp} initial="hidden" whileInView="visible" viewport={viewportConfig}
         style={{ marginTop: '3rem', textAlign: 'center' }}>
         <Link to="/projects" style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', padding: '14px 40px', border: '1px solid rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.5)', fontSize: '13px', letterSpacing: '0.15em', textTransform: 'uppercase', fontWeight: 500, textDecoration: 'none', transition: 'all 0.3s' }}>
-          All Projects <span>→</span>
+          {t('projects.all')} <span>→</span>
         </Link>
       </motion.div>
     </SectionWrapper>

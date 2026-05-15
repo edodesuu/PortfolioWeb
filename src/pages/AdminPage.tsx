@@ -7,57 +7,43 @@ import {
   checkAdminAuth, isAdminAuthed, setAdminAuth, generateId,
 } from '../lib/store';
 
-// ─── Styles ────────────────────────────
-
 const inputStyle: React.CSSProperties = {
   width: '100%', padding: '10px 14px', background: 'rgba(255,255,255,0.04)',
   border: '1px solid rgba(255,255,255,0.08)', color: '#e8e8e8', fontSize: '14px',
   fontFamily: 'Inter, sans-serif', outline: 'none',
 };
-
 const btnStyle: React.CSSProperties = {
   padding: '10px 24px', background: '#fff', color: '#000', fontSize: '12px',
   letterSpacing: '0.1em', textTransform: 'uppercase', fontWeight: 600,
-  border: 'none', cursor: 'pointer', transition: 'opacity 0.3s',
+  border: 'none', cursor: 'pointer',
 };
-
 const btnOutline: React.CSSProperties = {
   ...btnStyle, background: 'transparent', color: 'rgba(255,255,255,0.5)',
   border: '1px solid rgba(255,255,255,0.15)',
 };
-
 const btnDanger: React.CSSProperties = {
   ...btnOutline, color: '#e84040', borderColor: 'rgba(232,64,64,0.3)',
 };
-
 const labelStyle: React.CSSProperties = {
   fontSize: '11px', letterSpacing: '0.15em', textTransform: 'uppercase',
   color: 'rgba(255,255,255,0.3)', fontWeight: 500, marginBottom: '6px', display: 'block',
 };
 
-// ─── Login Gate ────────────────────────
+// ─── Login ─────────────────────────────
 
 function LoginGate({ onAuth }: { onAuth: () => void }) {
   const [pw, setPw] = useState('');
   const [error, setError] = useState(false);
-
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (checkAdminAuth(pw)) { setAdminAuth(); onAuth(); }
-    else setError(true);
+    if (checkAdminAuth(pw)) { setAdminAuth(); onAuth(); } else setError(true);
   };
-
   return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <form onSubmit={submit} style={{ width: '100%', maxWidth: '360px', padding: '0 2rem' }}>
-        <h1 className="font-display" style={{ fontSize: '1.75rem', fontWeight: 700, color: 'rgba(255,255,255,0.9)', marginBottom: '2rem', textAlign: 'center' }}>
-          Admin
-        </h1>
-        <input
-          type="password" value={pw} onChange={(e) => { setPw(e.target.value); setError(false); }}
-          placeholder="Password" autoFocus
-          style={{ ...inputStyle, marginBottom: '1rem', borderColor: error ? 'rgba(232,64,64,0.5)' : undefined }}
-        />
+        <h1 className="font-display" style={{ fontSize: '1.75rem', fontWeight: 700, color: 'rgba(255,255,255,0.9)', marginBottom: '2rem', textAlign: 'center' }}>Admin</h1>
+        <input type="password" value={pw} onChange={(e) => { setPw(e.target.value); setError(false); }}
+          placeholder="Password" autoFocus style={{ ...inputStyle, marginBottom: '1rem', borderColor: error ? 'rgba(232,64,64,0.5)' : undefined }} />
         {error && <p style={{ fontSize: '12px', color: '#e84040', marginBottom: '1rem' }}>Wrong password</p>}
         <button type="submit" style={{ ...btnStyle, width: '100%' }}>Enter</button>
       </form>
@@ -70,37 +56,32 @@ function LoginGate({ onAuth }: { onAuth: () => void }) {
 function ProjectEditor({ project, onSave, onCancel }: {
   project: Project | null; onSave: (p: Project) => void; onCancel: () => void;
 }) {
-  const [form, setForm] = useState<Project>(project || {
-    id: '', title: '', description: '', badge: '', tags: [],
-    screenshots: [], githubUrl: '', liveUrl: '', featured: true,
-  });
+  const empty: Project = {
+    id: '', title: '', title_ru: '', description: '', description_ru: '',
+    badge: '', tags: [], screenshots: [], githubUrl: '', liveUrl: '', featured: true,
+  };
+  const [form, setForm] = useState<Project>(project || empty);
   const [tagInput, setTagInput] = useState(form.tags.join(', '));
   const [screenshotInput, setScreenshotInput] = useState('');
 
   const update = (key: keyof Project, value: unknown) => setForm({ ...form, [key]: value });
 
-  const handleScreenshotUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = () => {
-      if (reader.result) {
-        update('screenshots', [...form.screenshots, reader.result as string]);
-      }
-    };
+    reader.onload = () => { if (reader.result) update('screenshots', [...form.screenshots, reader.result as string]); };
     reader.readAsDataURL(file);
   };
 
-  const addScreenshotPath = () => {
+  const addPath = () => {
     if (screenshotInput.trim()) {
       update('screenshots', [...form.screenshots, screenshotInput.trim()]);
       setScreenshotInput('');
     }
   };
 
-  const removeScreenshot = (i: number) => {
-    update('screenshots', form.screenshots.filter((_, idx) => idx !== i));
-  };
+  const removeSS = (i: number) => update('screenshots', form.screenshots.filter((_, idx) => idx !== i));
 
   const save = () => {
     const tags = tagInput.split(',').map(t => t.trim()).filter(Boolean);
@@ -113,31 +94,46 @@ function ProjectEditor({ project, onSave, onCancel }: {
       <h3 className="font-display" style={{ fontSize: '1.25rem', fontWeight: 600, color: 'rgba(255,255,255,0.85)', marginBottom: '1.5rem' }}>
         {project ? 'Edit Project' : 'New Project'}
       </h3>
-
       <div style={{ display: 'grid', gap: '1.25rem' }}>
-        <div>
-          <label style={labelStyle}>Title</label>
-          <input style={inputStyle} value={form.title} onChange={(e) => update('title', e.target.value)} />
+        {/* EN Title */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+          <div>
+            <label style={labelStyle}>Title (EN)</label>
+            <input style={inputStyle} value={form.title} onChange={(e) => update('title', e.target.value)} />
+          </div>
+          <div>
+            <label style={labelStyle}>Title (RU)</label>
+            <input style={inputStyle} value={form.title_ru} onChange={(e) => update('title_ru', e.target.value)} />
+          </div>
         </div>
         <div>
           <label style={labelStyle}>Badge</label>
-          <input style={inputStyle} value={form.badge || ''} onChange={(e) => update('badge', e.target.value)} placeholder="e.g. Open Source, Commercial, Private" />
+          <input style={inputStyle} value={form.badge || ''} onChange={(e) => update('badge', e.target.value)} placeholder="Open Source, Commercial, Private" />
         </div>
-        <div>
-          <label style={labelStyle}>Description</label>
-          <textarea style={{ ...inputStyle, minHeight: '120px', resize: 'vertical' }} value={form.description} onChange={(e) => update('description', e.target.value)} />
+        {/* EN Description */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+          <div>
+            <label style={labelStyle}>Description (EN)</label>
+            <textarea style={{ ...inputStyle, minHeight: '120px', resize: 'vertical' }} value={form.description} onChange={(e) => update('description', e.target.value)} />
+          </div>
+          <div>
+            <label style={labelStyle}>Description (RU)</label>
+            <textarea style={{ ...inputStyle, minHeight: '120px', resize: 'vertical' }} value={form.description_ru} onChange={(e) => update('description_ru', e.target.value)} />
+          </div>
         </div>
         <div>
           <label style={labelStyle}>Tags (comma separated)</label>
           <input style={inputStyle} value={tagInput} onChange={(e) => setTagInput(e.target.value)} placeholder="Python, aiogram, PostgreSQL" />
         </div>
-        <div>
-          <label style={labelStyle}>GitHub URL</label>
-          <input style={inputStyle} value={form.githubUrl || ''} onChange={(e) => update('githubUrl', e.target.value)} placeholder="https://github.com/..." />
-        </div>
-        <div>
-          <label style={labelStyle}>Live URL / Bot</label>
-          <input style={inputStyle} value={form.liveUrl || ''} onChange={(e) => update('liveUrl', e.target.value)} placeholder="https://t.me/..." />
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+          <div>
+            <label style={labelStyle}>GitHub URL</label>
+            <input style={inputStyle} value={form.githubUrl || ''} onChange={(e) => update('githubUrl', e.target.value)} />
+          </div>
+          <div>
+            <label style={labelStyle}>Live URL / Bot</label>
+            <input style={inputStyle} value={form.liveUrl || ''} onChange={(e) => update('liveUrl', e.target.value)} />
+          </div>
         </div>
 
         {/* Screenshots */}
@@ -147,27 +143,24 @@ function ProjectEditor({ project, onSave, onCancel }: {
             {form.screenshots.map((src, i) => (
               <div key={i} style={{ width: '120px', height: '75px', position: 'relative', border: '1px solid rgba(255,255,255,0.08)', overflow: 'hidden' }}>
                 <img src={src} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                <button onClick={() => removeScreenshot(i)} style={{ position: 'absolute', top: '2px', right: '2px', background: 'rgba(0,0,0,0.8)', color: '#e84040', border: 'none', cursor: 'pointer', fontSize: '14px', width: '20px', height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
+                <button onClick={() => removeSS(i)} style={{ position: 'absolute', top: '2px', right: '2px', background: 'rgba(0,0,0,0.8)', color: '#e84040', border: 'none', cursor: 'pointer', fontSize: '14px', width: '20px', height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
               </div>
             ))}
           </div>
           <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '0.5rem' }}>
             <input style={{ ...inputStyle, flex: 1 }} value={screenshotInput} onChange={(e) => setScreenshotInput(e.target.value)} placeholder="File path or URL" />
-            <button onClick={addScreenshotPath} style={btnOutline}>Add Path</button>
+            <button onClick={addPath} style={btnOutline}>Add</button>
           </div>
           <label style={{ ...btnOutline, display: 'inline-block', textAlign: 'center', cursor: 'pointer' }}>
-            Upload File
-            <input type="file" accept="image/*" onChange={handleScreenshotUpload} style={{ display: 'none' }} />
+            Upload <input type="file" accept="image/*" onChange={handleUpload} style={{ display: 'none' }} />
           </label>
         </div>
 
-        {/* Featured */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <input type="checkbox" checked={form.featured} onChange={(e) => update('featured', e.target.checked)} style={{ accentColor: '#fff' }} />
-          <label style={{ fontSize: '13px', color: 'rgba(255,255,255,0.5)' }}>Show on homepage (featured)</label>
+          <label style={{ fontSize: '13px', color: 'rgba(255,255,255,0.5)' }}>Featured (show on homepage)</label>
         </div>
       </div>
-
       <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.5rem' }}>
         <button onClick={save} style={btnStyle}>Save</button>
         <button onClick={onCancel} style={btnOutline}>Cancel</button>
@@ -183,29 +176,14 @@ function TechEditor({ categories, onSave }: { categories: TechCategory[]; onSave
   const [newCat, setNewCat] = useState('');
   const [newItems, setNewItems] = useState<Record<number, string>>({});
 
-  const addCategory = () => {
-    if (newCat.trim()) {
-      setCats([...cats, { label: newCat.trim(), items: [] }]);
-      setNewCat('');
-    }
+  const addCat = () => { if (newCat.trim()) { setCats([...cats, { label: newCat.trim(), items: [] }]); setNewCat(''); } };
+  const removeCat = (i: number) => setCats(cats.filter((_, idx) => idx !== i));
+  const addItem = (ci: number) => {
+    const val = newItems[ci]?.trim();
+    if (val) { const u = [...cats]; u[ci] = { ...u[ci], items: [...u[ci].items, val] }; setCats(u); setNewItems({ ...newItems, [ci]: '' }); }
   };
-
-  const removeCategory = (i: number) => setCats(cats.filter((_, idx) => idx !== i));
-
-  const addItem = (catIdx: number) => {
-    const val = newItems[catIdx]?.trim();
-    if (val) {
-      const updated = [...cats];
-      updated[catIdx] = { ...updated[catIdx], items: [...updated[catIdx].items, val] };
-      setCats(updated);
-      setNewItems({ ...newItems, [catIdx]: '' });
-    }
-  };
-
-  const removeItem = (catIdx: number, itemIdx: number) => {
-    const updated = [...cats];
-    updated[catIdx] = { ...updated[catIdx], items: updated[catIdx].items.filter((_, i) => i !== itemIdx) };
-    setCats(updated);
+  const removeItem = (ci: number, ii: number) => {
+    const u = [...cats]; u[ci] = { ...u[ci], items: u[ci].items.filter((_, i) => i !== ii) }; setCats(u);
   };
 
   return (
@@ -215,7 +193,7 @@ function TechEditor({ categories, onSave }: { categories: TechCategory[]; onSave
           <div key={ci} style={{ border: '1px solid rgba(255,255,255,0.08)', padding: '1.5rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
               <h4 className="font-display" style={{ fontSize: '1rem', fontWeight: 600, color: 'rgba(255,255,255,0.85)' }}>{cat.label}</h4>
-              <button onClick={() => removeCategory(ci)} style={{ ...btnDanger, padding: '4px 10px', fontSize: '10px' }}>Delete</button>
+              <button onClick={() => removeCat(ci)} style={{ ...btnDanger, padding: '4px 10px', fontSize: '10px' }}>Del</button>
             </div>
             <ul style={{ listStyle: 'none', padding: 0, marginBottom: '0.75rem' }}>
               {cat.items.map((item, ii) => (
@@ -228,25 +206,22 @@ function TechEditor({ categories, onSave }: { categories: TechCategory[]; onSave
             <div style={{ display: 'flex', gap: '0.5rem' }}>
               <input style={{ ...inputStyle, flex: 1, padding: '6px 10px', fontSize: '12px' }}
                 value={newItems[ci] || ''} onChange={(e) => setNewItems({ ...newItems, [ci]: e.target.value })}
-                placeholder="New item"
-                onKeyDown={(e) => e.key === 'Enter' && addItem(ci)} />
+                placeholder="New item" onKeyDown={(e) => e.key === 'Enter' && addItem(ci)} />
               <button onClick={() => addItem(ci)} style={{ ...btnOutline, padding: '6px 12px', fontSize: '10px' }}>+</button>
             </div>
           </div>
         ))}
       </div>
-
       <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', marginBottom: '1.5rem' }}>
-        <input style={{ ...inputStyle, maxWidth: '240px' }} value={newCat} onChange={(e) => setNewCat(e.target.value)} placeholder="New category name" onKeyDown={(e) => e.key === 'Enter' && addCategory()} />
-        <button onClick={addCategory} style={btnOutline}>Add Category</button>
+        <input style={{ ...inputStyle, maxWidth: '240px' }} value={newCat} onChange={(e) => setNewCat(e.target.value)} placeholder="New category" onKeyDown={(e) => e.key === 'Enter' && addCat()} />
+        <button onClick={addCat} style={btnOutline}>Add Category</button>
       </div>
-
       <button onClick={() => onSave(cats)} style={btnStyle}>Save Tech Stack</button>
     </div>
   );
 }
 
-// ─── Main Admin Page ───────────────────
+// ─── Main ──────────────────────────────
 
 export default function AdminPage() {
   const [authed, setAuthed] = useState(isAdminAuthed());
@@ -257,37 +232,22 @@ export default function AdminPage() {
 
   useEffect(() => { window.scrollTo(0, 0); }, []);
 
-  if (!authed) {
-    return <Layout><LoginGate onAuth={() => setAuthed(true)} /></Layout>;
-  }
+  if (!authed) return <Layout><LoginGate onAuth={() => setAuthed(true)} /></Layout>;
 
-  const handleSaveProject = (p: Project) => {
-    let updated: Project[];
+  const handleSave = (p: Project) => {
     const existing = projects.find(x => x.id === p.id);
-    if (existing) {
-      updated = projects.map(x => x.id === p.id ? p : x);
-    } else {
-      updated = [...projects, p];
-    }
-    setProjects(updated);
-    saveProjects(updated);
-    setEditing(null);
+    const updated = existing ? projects.map(x => x.id === p.id ? p : x) : [...projects, p];
+    setProjects(updated); saveProjects(updated); setEditing(null);
   };
 
-  const handleDeleteProject = (id: string) => {
+  const handleDelete = (id: string) => {
     const updated = projects.filter(p => p.id !== id);
-    setProjects(updated);
-    saveProjects(updated);
+    setProjects(updated); saveProjects(updated);
   };
 
-  const handleSaveTech = (cats: TechCategory[]) => {
-    setTechStack(cats);
-    saveTechStack(cats);
-  };
-
-  const tabStyle = (active: boolean): React.CSSProperties => ({
+  const tabBtn = (active: boolean): React.CSSProperties => ({
     padding: '10px 24px', fontSize: '12px', letterSpacing: '0.15em', textTransform: 'uppercase',
-    fontWeight: 500, cursor: 'pointer', border: 'none', transition: 'all 0.3s',
+    fontWeight: 500, cursor: 'pointer', border: 'none',
     background: active ? 'rgba(255,255,255,0.08)' : 'transparent',
     color: active ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.3)',
   });
@@ -297,64 +257,48 @@ export default function AdminPage() {
       <section style={{ minHeight: '100vh', paddingTop: '80px', paddingBottom: '4rem' }}>
         <div className="section-container">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
-            <h1 className="font-display" style={{ fontSize: '1.75rem', fontWeight: 700, color: 'rgba(255,255,255,0.9)' }}>
-              Admin Panel
-            </h1>
-            <Link to="/" style={{ fontSize: '12px', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', textDecoration: 'none' }}>
-              ← Back to site
-            </Link>
+            <h1 className="font-display" style={{ fontSize: '1.75rem', fontWeight: 700, color: 'rgba(255,255,255,0.9)' }}>Admin Panel</h1>
+            <Link to="/" style={{ fontSize: '12px', letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', textDecoration: 'none' }}>← Back</Link>
           </div>
 
-          {/* Tabs */}
           <div style={{ display: 'flex', gap: '2px', marginBottom: '2.5rem', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-            <button onClick={() => setTab('projects')} style={tabStyle(tab === 'projects')}>Projects</button>
-            <button onClick={() => setTab('tech')} style={tabStyle(tab === 'tech')}>Tech Stack</button>
+            <button onClick={() => setTab('projects')} style={tabBtn(tab === 'projects')}>Projects</button>
+            <button onClick={() => setTab('tech')} style={tabBtn(tab === 'tech')}>Tech Stack</button>
           </div>
 
-          {/* Projects Tab */}
           {tab === 'projects' && (
-            <div>
-              {editing !== null ? (
-                <ProjectEditor
-                  project={editing === 'new' ? null : editing}
-                  onSave={handleSaveProject}
-                  onCancel={() => setEditing(null)}
-                />
-              ) : (
-                <>
-                  <button onClick={() => setEditing('new')} style={{ ...btnStyle, marginBottom: '2rem' }}>
-                    + New Project
-                  </button>
-                  <div style={{ display: 'grid', gap: '1rem' }}>
-                    {projects.map((p) => (
-                      <div key={p.id} style={{ border: '1px solid rgba(255,255,255,0.06)', padding: '1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
-                        <div>
-                          <h3 className="font-display" style={{ fontSize: '1.1rem', fontWeight: 600, color: 'rgba(255,255,255,0.85)' }}>{p.title}</h3>
-                          <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem', alignItems: 'center' }}>
-                            {p.badge && <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)', border: '1px solid rgba(255,255,255,0.08)', padding: '2px 8px' }}>{p.badge}</span>}
-                            <span style={{ fontSize: '10px', color: p.featured ? 'rgba(42,138,42,0.8)' : 'rgba(255,255,255,0.15)' }}>
-                              {p.featured ? '★ Featured' : 'Hidden'}
-                            </span>
-                            <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.15)' }}>
-                              {p.screenshots.length} screenshots
-                            </span>
-                          </div>
-                        </div>
-                        <div style={{ display: 'flex', gap: '0.5rem' }}>
-                          <button onClick={() => setEditing(p)} style={{ ...btnOutline, padding: '6px 16px', fontSize: '10px' }}>Edit</button>
-                          <button onClick={() => handleDeleteProject(p.id)} style={{ ...btnDanger, padding: '6px 16px', fontSize: '10px' }}>Delete</button>
+            editing !== null ? (
+              <ProjectEditor project={editing === 'new' ? null : editing} onSave={handleSave} onCancel={() => setEditing(null)} />
+            ) : (
+              <>
+                <button onClick={() => setEditing('new')} style={{ ...btnStyle, marginBottom: '2rem' }}>+ New Project</button>
+                <div style={{ display: 'grid', gap: '1rem' }}>
+                  {projects.map((p) => (
+                    <div key={p.id} style={{ border: '1px solid rgba(255,255,255,0.06)', padding: '1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+                      <div>
+                        <h3 className="font-display" style={{ fontSize: '1.1rem', fontWeight: 600, color: 'rgba(255,255,255,0.85)' }}>
+                          {p.title} <span style={{ color: 'rgba(255,255,255,0.2)', fontWeight: 400 }}>/ {p.title_ru}</span>
+                        </h3>
+                        <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem', alignItems: 'center' }}>
+                          {p.badge && <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)', border: '1px solid rgba(255,255,255,0.08)', padding: '2px 8px' }}>{p.badge}</span>}
+                          <span style={{ fontSize: '10px', color: p.featured ? 'rgba(42,138,42,0.8)' : 'rgba(255,255,255,0.15)' }}>
+                            {p.featured ? '★ Featured' : 'Hidden'}
+                          </span>
                         </div>
                       </div>
-                    ))}
-                  </div>
-                </>
-              )}
-            </div>
+                      <div style={{ display: 'flex', gap: '0.5rem' }}>
+                        <button onClick={() => setEditing(p)} style={{ ...btnOutline, padding: '6px 16px', fontSize: '10px' }}>Edit</button>
+                        <button onClick={() => handleDelete(p.id)} style={{ ...btnDanger, padding: '6px 16px', fontSize: '10px' }}>Delete</button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )
           )}
 
-          {/* Tech Tab */}
           {tab === 'tech' && (
-            <TechEditor categories={techStack} onSave={handleSaveTech} />
+            <TechEditor categories={techStack} onSave={(c) => { setTechStack(c); saveTechStack(c); }} />
           )}
         </div>
       </section>

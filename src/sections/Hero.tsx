@@ -43,12 +43,12 @@ export default function Hero() {
 
         {/* CTA */}
         <motion.div variants={fadeInUp} style={{ display: 'flex', gap: '1.25rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-          <a href="#projects" style={{ padding: '14px 40px', background: '#fff', color: '#000', fontSize: '13px', letterSpacing: '0.15em', textTransform: 'uppercase', fontWeight: 600, textDecoration: 'none', transition: 'opacity 0.3s' }}>
+          <button onClick={() => document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth' })} style={{ padding: '14px 40px', background: '#fff', color: '#000', fontSize: '13px', letterSpacing: '0.15em', textTransform: 'uppercase', fontWeight: 600, border: 'none', cursor: 'pointer', transition: 'opacity 0.3s' }}>
             {t('hero.cta_projects')}
-          </a>
-          <a href="#contact" style={{ padding: '14px 40px', border: '1px solid rgba(255,255,255,0.2)', color: 'rgba(255,255,255,0.5)', fontSize: '13px', letterSpacing: '0.15em', textTransform: 'uppercase', fontWeight: 500, textDecoration: 'none', transition: 'all 0.3s' }}>
+          </button>
+          <button onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })} style={{ padding: '14px 40px', border: '1px solid rgba(255,255,255,0.2)', color: 'rgba(255,255,255,0.5)', fontSize: '13px', letterSpacing: '0.15em', textTransform: 'uppercase', fontWeight: 500, background: 'transparent', cursor: 'pointer', transition: 'all 0.3s' }}>
             {t('hero.cta_contact')}
-          </a>
+          </button>
         </motion.div>
       </motion.div>
 

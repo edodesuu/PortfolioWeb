@@ -58,32 +58,12 @@
   "projects": {
     "label": "Portfolio",
     "title": "Selected Works",
-    "items": [
-      {
-        "title": "Bot Zadaniye",
-        "badge": "Open Source",
-        "description": "A Telegram bot for task distribution — primarily for advertising services like \"Like this, subscribe to that.\" Features smart subscription & like tracking to prevent fraud, a fair penalty system for violators, an admin panel, and a gamification module.",
-        "tags": ["Python", "aiogram", "PostgreSQL", "Docker"]
-      },
-      {
-        "title": "Realtor Bot",
-        "badge": "Commercial",
-        "description": "A real-estate Telegram bot with a massive property database. Admins add listings via the admin panel; users find properties through an advanced multi-filter search. When a user is interested, the bot connects them directly with an admin for discussion.",
-        "tags": ["Python", "aiogram", "PostgreSQL", "Admin Panel"]
-      },
-      {
-        "title": "Scanner Bot",
-        "badge": "Private",
-        "description": "A stealth bot with userbot integration designed to infiltrate neighborhood groups and find potential clients via keyword monitoring. Disguised as a real user, it continuously scans group messages and forwards matches to a dedicated channel.",
-        "tags": ["Python", "Telethon", "Userbot", "Regex"]
-      },
-      {
-        "title": "Auth Landing Page",
-        "badge": "Full Stack",
-        "description": "A full-stack web application with real Gmail OAuth authentication. A landing page presenting specialized software with a complete auth flow and user management.",
-        "tags": ["React", "TypeScript", "Node.js", "OAuth"]
-      }
-    ],
+    "all": "All Projects",
+    "count": "projects",
+    "not_found": "Project not found",
+    "about_project": "About this project",
+    "links": "Links",
+    "no_links": "No public links available",
     "view_details": "Details",
     "live_demo": "Live"
   },
