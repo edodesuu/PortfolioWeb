@@ -1,54 +1,67 @@
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import SectionWrapper from '../components/SectionWrapper';
-import { staggerContainer, staggerItem, viewportConfig } from '../lib/animations';
+import { getFeaturedProjects } from '../lib/store';
+import { staggerContainer, staggerItem, fadeInUp, viewportConfig } from '../lib/animations';
 
 export default function Projects() {
   const { t } = useTranslation();
-  const items = t('projects.items', { returnObjects: true }) as Array<{
-    title: string; description: string; tags: string[]; badge?: string;
-  }>;
+  const projects = getFeaturedProjects();
 
   return (
     <SectionWrapper id="projects" label={t('projects.label')} title={t('projects.title')}>
-      {/* Centered subtitle */}
       <motion.div variants={staggerContainer} initial="hidden" whileInView="visible" viewport={viewportConfig}
-        style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 500px), 1fr))', gap: '3rem' }}>
-        {items.map((project, i) => (
-          <motion.div key={i} variants={staggerItem}
-            className="group"
-            style={{ border: '1px solid rgba(255,255,255,0.06)', transition: 'border-color 0.5s', overflow: 'hidden' }}>
-            {/* Image */}
-            <div style={{ aspectRatio: '16/10', background: 'rgba(255,255,255,0.02)', position: 'relative', overflow: 'hidden' }}>
-              <div className="dot-grid" style={{ position: 'absolute', inset: 0, opacity: 0.3 }} />
-              <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <div className="enso" style={{ width: '60px', height: '60px', opacity: 0.2 }} />
+        style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 500px), 1fr))', gap: '2.5rem' }}>
+        {projects.map((project) => (
+          <motion.div key={project.id} variants={staggerItem}>
+            <Link to={`/project/${project.id}`} style={{ textDecoration: 'none', display: 'block', border: '1px solid rgba(255,255,255,0.06)', overflow: 'hidden', transition: 'border-color 0.5s' }}
+              className="group hover:border-white/[0.12]">
+              {/* Image */}
+              <div style={{ aspectRatio: '16/10', background: 'rgba(255,255,255,0.02)', position: 'relative', overflow: 'hidden' }}>
+                {project.screenshots.length > 0 ? (
+                  <img src={project.screenshots[0]} alt={project.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                ) : (
+                  <>
+                    <div className="dot-grid" style={{ position: 'absolute', inset: 0, opacity: 0.3 }} />
+                    <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <div className="enso" style={{ width: '60px', height: '60px', opacity: 0.2 }} />
+                    </div>
+                  </>
+                )}
               </div>
-            </div>
-
-            {/* Content */}
-            <div style={{ padding: '2rem' }}>
-              {project.badge && (
-                <span style={{ fontSize: '10px', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', display: 'inline-block', marginBottom: '0.75rem', fontWeight: 500 }}>
-                  {project.badge}
-                </span>
-              )}
-              <h3 className="font-display" style={{ fontSize: '1.35rem', fontWeight: 600, color: 'rgba(255,255,255,0.85)', marginBottom: '0.75rem' }}>
-                {project.title}
-              </h3>
-              <p style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.3)', lineHeight: 1.8, marginBottom: '1.5rem' }}>
-                {project.description}
-              </p>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-                {project.tags.map((tag) => (
-                  <span key={tag} style={{ fontSize: '10px', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.2)', border: '1px solid rgba(255,255,255,0.07)', padding: '4px 12px', fontWeight: 500 }}>
-                    {tag}
+              {/* Content */}
+              <div style={{ padding: '1.75rem' }}>
+                {project.badge && (
+                  <span style={{ fontSize: '10px', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', display: 'inline-block', marginBottom: '0.5rem', fontWeight: 500 }}>
+                    {project.badge}
                   </span>
-                ))}
+                )}
+                <h3 className="font-display" style={{ fontSize: '1.35rem', fontWeight: 600, color: 'rgba(255,255,255,0.85)', marginBottom: '0.5rem' }}>
+                  {project.title}
+                </h3>
+                <p style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.3)', lineHeight: 1.7, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden', marginBottom: '1rem' }}>
+                  {project.description}
+                </p>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
+                  {project.tags.map((tag) => (
+                    <span key={tag} style={{ fontSize: '10px', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.2)', border: '1px solid rgba(255,255,255,0.07)', padding: '3px 10px', fontWeight: 500 }}>
+                      {tag}
+                    </span>
+                  ))}
+                </div>
               </div>
-            </div>
+            </Link>
           </motion.div>
         ))}
+      </motion.div>
+
+      {/* All Projects button */}
+      <motion.div variants={fadeInUp} initial="hidden" whileInView="visible" viewport={viewportConfig}
+        style={{ marginTop: '3rem', textAlign: 'center' }}>
+        <Link to="/projects" style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', padding: '14px 40px', border: '1px solid rgba(255,255,255,0.15)', color: 'rgba(255,255,255,0.5)', fontSize: '13px', letterSpacing: '0.15em', textTransform: 'uppercase', fontWeight: 500, textDecoration: 'none', transition: 'all 0.3s' }}>
+          All Projects <span>→</span>
+        </Link>
       </motion.div>
     </SectionWrapper>
   );

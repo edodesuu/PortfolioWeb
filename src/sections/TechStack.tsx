@@ -2,16 +2,11 @@ import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import SectionWrapper from '../components/SectionWrapper';
 import { fadeInUp, viewportConfig } from '../lib/animations';
-
-const categories = [
-  { label: 'Telegram Bots', items: ['Python', 'Aiogram', 'Telebot', 'Telethon', 'yt-dlp', 'Pyrogram'] },
-  { label: 'Front-End', items: ['HTML', 'CSS', 'JavaScript', 'TypeScript', 'React', 'Vite', 'TailwindCSS'] },
-  { label: 'Back-End', items: ['Flask', 'Django', 'PostgreSQL', 'MongoDB', 'Redis', 'REST API'] },
-  { label: 'Tools', items: ['Git', 'Docker', 'Linux', 'Bash', 'Nginx', 'Networks', 'CI/CD'] },
-];
+import { getTechStack } from '../lib/store';
 
 export default function TechStack() {
   const { t } = useTranslation();
+  const categories = getTechStack();
 
   const allTech = categories.flatMap(c => c.items);
   const row1 = [...allTech, ...allTech];

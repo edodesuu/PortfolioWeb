@@ -1,24 +1,27 @@
-import Layout from './components/Layout';
-import Navbar from './components/Navbar';
-import Hero from './sections/Hero';
-import About from './sections/About';
-import Services from './sections/Services';
-import Projects from './sections/Projects';
-import TechStack from './sections/TechStack';
-import Contact from './sections/Contact';
-import Footer from './sections/Footer';
+import { Routes, Route } from 'react-router-dom';
+import { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
+import HomePage from './pages/HomePage';
+import AllProjectsPage from './pages/AllProjectsPage';
+import ProjectDetailPage from './pages/ProjectDetailPage';
+import AdminPage from './pages/AdminPage';
+
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => { window.scrollTo(0, 0); }, [pathname]);
+  return null;
+}
 
 export default function App() {
   return (
-    <Layout>
-      <Navbar />
-      <Hero />
-      <About />
-      <Services />
-      <Projects />
-      <TechStack />
-      <Contact />
-      <Footer />
-    </Layout>
+    <>
+      <ScrollToTop />
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/projects" element={<AllProjectsPage />} />
+        <Route path="/project/:id" element={<ProjectDetailPage />} />
+        <Route path="/admin" element={<AdminPage />} />
+      </Routes>
+    </>
   );
 }
