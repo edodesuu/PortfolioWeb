@@ -2,19 +2,22 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import SectionWrapper from '../components/SectionWrapper';
-import { getFeaturedProjects, localized } from '../lib/store';
+import { usePortfolio, localized } from '../lib/store';
 import { staggerContainer, staggerItem, fadeInUp, viewportConfig } from '../lib/animations';
 
 export default function Projects() {
   const { t, i18n } = useTranslation();
-  const projects = getFeaturedProjects();
+  const { projects, loading } = usePortfolio();
+  const featuredProjects = projects.filter(p => p.featured);
   const lang = i18n.language;
 
   return (
     <SectionWrapper id="projects" label={t('projects.label')} title={t('projects.title')}>
       <motion.div variants={staggerContainer} initial="hidden" whileInView="visible" viewport={viewportConfig}
         style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 500px), 1fr))', gap: '2.5rem' }}>
-        {projects.map((project) => (
+        {loading ? (
+          <p style={{ color: 'rgba(255,255,255,0.5)', textAlign: 'center', gridColumn: '1 / -1' }}>Loading projects...</p>
+        ) : featuredProjects.map((project) => (
           <motion.div key={project.id} variants={staggerItem}>
             <Link to={`/project/${project.id}`} style={{ textDecoration: 'none', display: 'block', border: '1px solid rgba(255,255,255,0.06)', overflow: 'hidden', transition: 'border-color 0.5s' }}
               className="group hover:border-white/[0.12]">

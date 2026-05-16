@@ -4,14 +4,15 @@ import { useTranslation } from 'react-i18next';
 import Layout from '../components/Layout';
 import Navbar from '../components/Navbar';
 import Footer from '../sections/Footer';
-import { getProjectById, localized } from '../lib/store';
+import { usePortfolio, localized } from '../lib/store';
 import { fadeInUp } from '../lib/animations';
 
 export default function ProjectDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { t, i18n } = useTranslation();
+  const { projects, loading } = usePortfolio();
   const lang = i18n.language;
-  const project = id ? getProjectById(id) : undefined;
+  const project = id ? projects.find(p => p.id === id) : undefined;
 
   if (!project) {
     return (

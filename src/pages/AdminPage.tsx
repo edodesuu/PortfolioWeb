@@ -3,8 +3,7 @@ import { Link } from 'react-router-dom';
 import Layout from '../components/Layout';
 import {
   type Project, type TechCategory,
-  getProjects, saveProjects, getTechStack, saveTechStack,
-  checkAdminAuth, isAdminAuthed, setAdminAuth, generateId,
+  checkAdminAuth, isAdminAuthed, setAdminAuth, generateId, usePortfolio
 } from '../lib/store';
 
 const inputStyle: React.CSSProperties = {
@@ -53,8 +52,8 @@ function LoginGate({ onAuth }: { onAuth: () => void }) {
 
 // ─── Project Editor ────────────────────
 
-function ProjectEditor({ project, onSave, onCancel }: {
-  project: Project | null; onSave: (p: Project) => void; onCancel: () => void;
+function ProjectEditor({ project, onSave, onCancel, isSaving }: {
+  project: Project | null; onSave: (p: Project) => void; onCancel: () => void; isSaving?: boolean;
 }) {
   const empty: Project = {
     id: '', title: '', title_ru: '', description: '', description_ru: '',
@@ -194,8 +193,10 @@ function ProjectEditor({ project, onSave, onCancel }: {
         </div>
       </div>
       <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.5rem' }}>
-        <button onClick={save} style={btnStyle}>Save</button>
-        <button onClick={onCancel} style={btnOutline}>Cancel</button>
+        <button onClick={save} style={{ ...btnStyle, opacity: isSaving ? 0.7 : 1 }} disabled={isSaving}>
+          {isSaving ? 'Saving...' : 'Save'}
+        </button>
+        <button onClick={onCancel} style={btnOutline} disabled={isSaving}>Cancel</button>
       </div>
     </div>
   );
@@ -258,23 +259,45 @@ function TechEditor({ categories, onSave }: { categories: TechCategory[]; onSave
 export default function AdminPage() {
   const [authed, setAuthed] = useState(isAdminAuthed());
   const [tab, setTab] = useState<'projects' | 'tech'>('projects');
-  const [projects, setProjects] = useState<Project[]>(getProjects());
-  const [techStack, setTechStack] = useState<TechCategory[]>(getTechStack());
+  const { projects, techStack, saveProjects, saveTechStack, uploadImage } = usePortfolio();
   const [editing, setEditing] = useState<Project | null | 'new'>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => { window.scrollTo(0, 0); }, []);
 
   if (!authed) return <Layout><LoginGate onAuth={() => setAuthed(true)} /></Layout>;
 
-  const handleSave = (p: Project) => {
-    const existing = projects.find(x => x.id === p.id);
-    const updated = existing ? projects.map(x => x.id === p.id ? p : x) : [...projects, p];
-    setProjects(updated); saveProjects(updated); setEditing(null);
+  const handleSave = async (p: Project) => {
+    setIsSaving(true);
+    try {
+      // Upload cover if it's a base64 string
+      if (p.cover && p.cover.startsWith('data:image')) {
+        p.cover = await uploadImage(p.cover, `projects/${p.id}/cover`);
+      }
+      
+      // Upload screenshots if they are base64 strings
+      const uploadedScreenshots = await Promise.all(p.screenshots.map(async (src, i) => {
+        if (src.startsWith('data:image')) return await uploadImage(src, `projects/${p.id}/screenshot_${i}`);
+        return src;
+      }));
+      p.screenshots = uploadedScreenshots;
+
+      const existing = projects.find(x => x.id === p.id);
+      const updated = existing ? projects.map(x => x.id === p.id ? p : x) : [...projects, p];
+      await saveProjects(updated);
+      setEditing(null);
+    } catch (err) {
+      console.error("Failed to save project", err);
+      alert("Error saving project. See console.");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this project?')) return;
     const updated = projects.filter(p => p.id !== id);
-    setProjects(updated); saveProjects(updated);
+    await saveProjects(updated);
   };
 
   const tabBtn = (active: boolean): React.CSSProperties => ({
@@ -300,7 +323,7 @@ export default function AdminPage() {
 
           {tab === 'projects' && (
             editing !== null ? (
-              <ProjectEditor project={editing === 'new' ? null : editing} onSave={handleSave} onCancel={() => setEditing(null)} />
+              <ProjectEditor project={editing === 'new' ? null : editing} onSave={handleSave} onCancel={() => setEditing(null)} isSaving={isSaving} />
             ) : (
               <>
                 <button onClick={() => setEditing('new')} style={{ ...btnStyle, marginBottom: '2rem' }}>+ New Project</button>

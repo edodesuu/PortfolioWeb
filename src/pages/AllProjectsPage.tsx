@@ -4,12 +4,12 @@ import { useTranslation } from 'react-i18next';
 import Layout from '../components/Layout';
 import Navbar from '../components/Navbar';
 import Footer from '../sections/Footer';
-import { getProjects, localized } from '../lib/store';
+import { usePortfolio, localized } from '../lib/store';
 import { staggerContainer, staggerItem, viewportConfig } from '../lib/animations';
 
 export default function AllProjectsPage() {
   const { t, i18n } = useTranslation();
-  const projects = getProjects();
+  const { projects, loading } = usePortfolio();
   const lang = i18n.language;
 
   return (

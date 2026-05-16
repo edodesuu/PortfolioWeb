@@ -2,16 +2,18 @@ import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import SectionWrapper from '../components/SectionWrapper';
 import { fadeInUp, viewportConfig } from '../lib/animations';
-import { getTechStack } from '../lib/store';
+import { usePortfolio } from '../lib/store';
 
 export default function TechStack() {
   const { t } = useTranslation();
-  const categories = getTechStack();
+  const { techStack: categories, loading } = usePortfolio();
 
   const allTech = categories.flatMap(c => c.items);
   const row1 = [...allTech, ...allTech];
   const row2Src = [...allTech].reverse();
   const row2 = [...row2Src, ...row2Src];
+
+  if (loading) return null;
 
   return (
     <SectionWrapper id="tech" label={t('tech.label')} title={t('tech.title')}>
