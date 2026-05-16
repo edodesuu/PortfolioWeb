@@ -52,6 +52,33 @@ function LoginGate({ onAuth }: { onAuth: () => void }) {
 
 // ─── Project Editor ────────────────────
 
+const compressImage = (file: File, maxWidth = 1600): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let { width, height } = img;
+        if (width > maxWidth) {
+          height = Math.round((height * maxWidth) / width);
+          width = maxWidth;
+        }
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return resolve(e.target?.result as string);
+        ctx.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/webp', 0.8));
+      };
+      img.onerror = reject;
+      img.src = e.target?.result as string;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+};
+
 function ProjectEditor({ project, onSave, onCancel, isSaving }: {
   project: Project | null; onSave: (p: Project) => void; onCancel: () => void; isSaving?: boolean;
 }) {
@@ -64,12 +91,15 @@ function ProjectEditor({ project, onSave, onCancel, isSaving }: {
   const [screenshotInput, setScreenshotInput] = useState('');
   const [coverInput, setCoverInput] = useState('');
 
-  const handleCoverUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => { if (reader.result) update('cover', reader.result as string); };
-    reader.readAsDataURL(file);
+    try {
+      const compressed = await compressImage(file);
+      update('cover', compressed);
+    } catch (err) {
+      console.error("Failed to compress cover", err);
+    }
   };
 
   const addCoverPath = () => {
@@ -78,12 +108,19 @@ function ProjectEditor({ project, onSave, onCancel, isSaving }: {
 
   const update = (key: keyof Project, value: unknown) => setForm({ ...form, [key]: value });
 
-  const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => { if (reader.result) update('screenshots', [...form.screenshots, reader.result as string]); };
-    reader.readAsDataURL(file);
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+    try {
+      const newScreenshots = [...form.screenshots];
+      for (const file of Array.from(files)) {
+        const compressed = await compressImage(file);
+        newScreenshots.push(compressed);
+      }
+      update('screenshots', newScreenshots);
+    } catch (err) {
+      console.error("Failed to compress screenshots", err);
+    }
   };
 
   const addPath = () => {
@@ -183,7 +220,7 @@ function ProjectEditor({ project, onSave, onCancel, isSaving }: {
             <button onClick={addPath} style={btnOutline}>Add</button>
           </div>
           <label style={{ ...btnOutline, display: 'inline-block', textAlign: 'center', cursor: 'pointer' }}>
-            Upload <input type="file" accept="image/*" onChange={handleUpload} style={{ display: 'none' }} />
+            Upload <input type="file" accept="image/*" multiple onChange={handleUpload} style={{ display: 'none' }} />
           </label>
         </div>
 
