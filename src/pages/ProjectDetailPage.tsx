@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
@@ -11,6 +12,7 @@ export default function ProjectDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { t, i18n } = useTranslation();
   const { projects, loading } = usePortfolio();
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const lang = i18n.language;
   const project = id ? projects.find(p => p.id === id) : undefined;
 
@@ -65,37 +67,15 @@ export default function ProjectDetailPage() {
             </div>
           </motion.div>
 
-          {project.screenshots.length > 0 && (
-            <motion.div variants={fadeInUp} initial="hidden" animate="visible" transition={{ delay: 0.1 }} style={{ marginBottom: '3rem' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: project.screenshots.length === 1 ? '1fr' : 'repeat(auto-fit, minmax(min(100%, 500px), 1fr))', gap: '1.5rem' }}>
-                {project.screenshots.map((src, i) => (
-                  <div key={i} style={{ aspectRatio: '16/10', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.06)' }}>
-                    <img src={src} alt={`${title} ${i + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                  </div>
-                ))}
-              </div>
-            </motion.div>
-          )}
-
-          {project.screenshots.length === 0 && (
-            <motion.div variants={fadeInUp} initial="hidden" animate="visible" transition={{ delay: 0.1 }}
-              style={{ aspectRatio: '21/9', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', marginBottom: '3rem', position: 'relative', overflow: 'hidden', maxHeight: '400px' }}>
-              <div className="dot-grid" style={{ position: 'absolute', inset: 0, opacity: 0.3 }} />
-              <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <div className="enso" style={{ width: '80px', height: '80px', opacity: 0.15 }} />
-              </div>
-            </motion.div>
-          )}
-
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 400px), 1fr))', gap: '4rem' }}>
-            <motion.div variants={fadeInUp} initial="hidden" animate="visible" transition={{ delay: 0.2 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 400px), 1fr))', gap: '4rem', marginBottom: '4rem' }}>
+            <motion.div variants={fadeInUp} initial="hidden" animate="visible" transition={{ delay: 0.1 }}>
               <h2 className="font-display" style={{ fontSize: '1.25rem', fontWeight: 600, color: 'rgba(255,255,255,0.85)', marginBottom: '1.25rem' }}>
                 {t('projects.about_project')}
               </h2>
               <p style={{ fontSize: '1rem', color: 'rgba(255,255,255,0.4)', lineHeight: 2 }}>{description}</p>
             </motion.div>
 
-            <motion.div variants={fadeInUp} initial="hidden" animate="visible" transition={{ delay: 0.3 }}>
+            <motion.div variants={fadeInUp} initial="hidden" animate="visible" transition={{ delay: 0.2 }}>
               <h2 className="font-display" style={{ fontSize: '1.25rem', fontWeight: 600, color: 'rgba(255,255,255,0.85)', marginBottom: '1.25rem' }}>
                 {t('projects.links')}
               </h2>
@@ -119,8 +99,37 @@ export default function ProjectDetailPage() {
               </div>
             </motion.div>
           </div>
+
+          {project.screenshots.length > 0 && (
+            <motion.div variants={fadeInUp} initial="hidden" animate="visible" transition={{ delay: 0.3 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: project.screenshots.length === 1 ? '1fr' : 'repeat(auto-fit, minmax(min(100%, 500px), 1fr))', gap: '1.5rem' }}>
+                {project.screenshots.map((src, i) => (
+                  <div key={i} style={{ aspectRatio: '16/10', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.06)', cursor: 'zoom-in' }} onClick={() => setSelectedImage(src)}>
+                    <img src={src} alt={`${title} ${i + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          )}
+
+          {project.screenshots.length === 0 && (
+            <motion.div variants={fadeInUp} initial="hidden" animate="visible" transition={{ delay: 0.3 }}
+              style={{ aspectRatio: '21/9', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', position: 'relative', overflow: 'hidden', maxHeight: '400px' }}>
+              <div className="dot-grid" style={{ position: 'absolute', inset: 0, opacity: 0.3 }} />
+              <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div className="enso" style={{ width: '80px', height: '80px', opacity: 0.15 }} />
+              </div>
+            </motion.div>
+          )}
         </div>
       </section>
+
+      {selectedImage && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.9)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }} onClick={() => setSelectedImage(null)}>
+          <button style={{ position: 'absolute', top: '2rem', right: '2rem', background: 'none', border: 'none', color: '#fff', fontSize: '2rem', cursor: 'pointer' }} onClick={() => setSelectedImage(null)}>&times;</button>
+          <img src={selectedImage} alt="Fullscreen" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} onClick={(e) => e.stopPropagation()} />
+        </div>
+      )}
       <Footer />
     </Layout>
   );
