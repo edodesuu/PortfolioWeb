@@ -78,7 +78,13 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
     async function loadData() {
       try {
         const docRef = doc(db, 'portfolio', 'data');
-        const snap = await getDoc(docRef);
+        
+        // Firebase getDoc can hang indefinitely if the database doesn't exist or is blocked.
+        // We use Promise.race to enforce a 5-second timeout.
+        const snap = await Promise.race([
+          getDoc(docRef),
+          new Promise<never>((_, reject) => setTimeout(() => reject(new Error("Firebase timeout")), 5000))
+        ]);
         
         if (snap.exists()) {
           const data = snap.data();

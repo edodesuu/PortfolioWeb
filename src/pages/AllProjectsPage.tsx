@@ -33,8 +33,8 @@ export default function AllProjectsPage() {
             style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 500px), 1fr))', gap: '2.5rem', paddingBottom: '6rem' }}>
             {projects.map((project) => (
               <motion.div key={project.id} variants={staggerItem}>
-                <Link to={`/project/${project.id}`} style={{ textDecoration: 'none', display: 'block', border: '1px solid rgba(255,255,255,0.06)', overflow: 'hidden', transition: 'border-color 0.5s' }}
-                  className="group hover:border-white/[0.12]">
+                <Link to={`/project/${project.id}`} style={{ textDecoration: 'none', display: 'block', overflow: 'hidden' }}
+                  className="neon-border group">
                   <div style={{ aspectRatio: '16/10', background: 'rgba(255,255,255,0.02)', position: 'relative', overflow: 'hidden' }}>
                     {project.cover ? (
                       <img src={project.cover} alt={localized(project, 'title', lang)} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />

@@ -13,10 +13,10 @@ export default function Services() {
         style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 320px), 1fr))', gap: '2rem' }}>
         {items.map((item, i) => (
           <motion.div key={i} variants={staggerItem}
-            style={{ padding: '2.5rem', border: '1px solid rgba(255,255,255,0.05)', transition: 'border-color 0.5s, background 0.5s', cursor: 'default', position: 'relative' }}
-            className="group hover:border-white/[0.1] hover:bg-white/[0.01]">
+            style={{ padding: '2.5rem', cursor: 'default', position: 'relative' }}
+            className="neon-border group">
             
-            <span className="font-mono" style={{ fontSize: '12px', color: 'rgba(255,255,255,0.1)', display: 'block', marginBottom: '1.5rem' }}>
+            <span className="font-mono neon-text" style={{ fontSize: '12px', display: 'block', marginBottom: '1.5rem' }}>
               {String(i + 1).padStart(2, '0')}
             </span>
             
