@@ -176,8 +176,23 @@ export function PortfolioProvider({ children }: { children: React.ReactNode }) {
     
     // Upload base64 to Firebase Storage
     const imageRef = ref(storage, path);
-    await uploadString(imageRef, base64OrUrl, 'data_url');
-    return await getDownloadURL(imageRef);
+    
+    try {
+      await Promise.race([
+        uploadString(imageRef, base64OrUrl, 'data_url'),
+        new Promise<never>((_, reject) => setTimeout(() => reject(new Error("Storage upload timeout")), 15000))
+      ]);
+      
+      const url = await Promise.race([
+        getDownloadURL(imageRef),
+        new Promise<never>((_, reject) => setTimeout(() => reject(new Error("Storage URL timeout")), 5000))
+      ]);
+      
+      return url;
+    } catch (err) {
+      console.error("Image upload failed:", err);
+      throw err;
+    }
   };
 
   return (

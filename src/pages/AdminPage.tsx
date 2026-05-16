@@ -323,9 +323,13 @@ export default function AdminPage() {
       const updated = existing ? projects.map(x => x.id === p.id ? p : x) : [...projects, p];
       await saveProjects(updated);
       setEditing(null);
-    } catch (err) {
+    } catch (err: any) {
       console.error("Failed to save project", err);
-      alert("Error saving project. See console.");
+      if (err.message && err.message.includes("timeout")) {
+        alert("Ошибка: Превышено время ожидания. Вы точно активировали Firebase Storage (и Firestore) в консоли Firebase? Зайдите в Build -> Storage и нажмите Get Started.");
+      } else {
+        alert("Error saving project. See console.");
+      }
     } finally {
       setIsSaving(false);
     }
