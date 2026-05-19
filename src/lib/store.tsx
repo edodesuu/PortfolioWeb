@@ -35,8 +35,8 @@ export function localized(project: Project, field: 'title' | 'description', lang
   return project[field];
 }
 
-export function isMediaVideo(url: string | undefined): boolean {
-  if (!url) return false;
+export function isMediaVideo(url: any): boolean {
+  if (!url || typeof url !== 'string') return false;
   return /\.(mp4|webm|ogg|mov)$/i.test(url.split('?')[0]);
 }
 
@@ -45,14 +45,14 @@ export function isMediaVideo(url: string | undefined): boolean {
 const defaultProjects: Project[] = [
   {
     id: 'bot-zadaniye',
-    title: 'Ad / Task Bot',
+    title: 'Bot Zadaniye',
     title_ru: 'Бот Заданий',
     badge: 'Open Source',
     description: 'A Telegram bot for task distribution — primarily for advertising services like "Like this, subscribe to that." Features smart subscription & like tracking to prevent fraud, a fair penalty system for violators, an admin panel, and a gamification module.',
     description_ru: 'Telegram-бот для распределения заданий — в основном для рекламных сервисов типа "Лайкни, подпишись." Умное отслеживание подписок и лайков для предотвращения мошенничества, справедливая система штрафов, админ-панель и модуль геймификации.',
     tags: ['Python', 'aiogram', 'PostgreSQL', 'Docker'],
     screenshots: [],
-    cover: '/PortfolioWeb/projects/ad_bot.png',
+    cover: '',
     githubUrl: '',
     liveUrl: '',
     featured: true,
@@ -66,7 +66,7 @@ const defaultProjects: Project[] = [
     description_ru: 'Telegram-бот для недвижимости с огромной базой объектов. Админы добавляют объявления через панель; пользователи ищут через продвинутый мульти-фильтр. Когда пользователь заинтересован, бот связывает его напрямую с админом.',
     tags: ['Python', 'aiogram', 'PostgreSQL', 'Admin Panel'],
     screenshots: [],
-    cover: '/PortfolioWeb/projects/realtor_bot.png',
+    cover: '',
     githubUrl: '',
     liveUrl: '',
     featured: true,
@@ -80,7 +80,7 @@ const defaultProjects: Project[] = [
     description_ru: 'Стелс-бот с интеграцией юзербота для проникновения в группы районов и поиска потенциальных клиентов через мониторинг ключевых слов. Замаскирован под реального пользователя, непрерывно сканирует сообщения и пересылает совпадения в канал.',
     tags: ['Python', 'Telethon', 'Userbot', 'Regex'],
     screenshots: [],
-    cover: '/PortfolioWeb/projects/scanner_bot.png',
+    cover: '',
     githubUrl: '',
     liveUrl: '',
     featured: true,
