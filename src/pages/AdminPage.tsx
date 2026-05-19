@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import Layout from '../components/Layout';
 import {
   type Project, type TechCategory,
-  checkAdminAuth, isAdminAuthed, setAdminAuth, generateId, usePortfolio
+  checkAdminAuth, isAdminAuthed, setAdminAuth, generateId, usePortfolio, isMediaVideo
 } from '../lib/store';
 
 const inputStyle: React.CSSProperties = {
@@ -165,7 +165,11 @@ function ProjectEditor({ project, onSave, onCancel, isSaving }: {
           <label style={labelStyle}>Cover / Обложка</label>
           {form.cover && (
             <div style={{ width: '200px', height: '125px', position: 'relative', border: '1px solid rgba(255,255,255,0.08)', overflow: 'hidden', marginBottom: '0.75rem' }}>
-              <img src={form.cover} alt="Cover" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              {isMediaVideo(form.cover) ? (
+                <video src={form.cover} autoPlay loop muted playsInline style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              ) : (
+                <img src={form.cover} alt="Cover" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              )}
               <button onClick={() => update('cover', '')} style={{ position: 'absolute', top: '2px', right: '2px', background: 'rgba(0,0,0,0.8)', color: '#e84040', border: 'none', cursor: 'pointer', fontSize: '14px', width: '20px', height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
             </div>
           )}
@@ -174,7 +178,7 @@ function ProjectEditor({ project, onSave, onCancel, isSaving }: {
             <button onClick={addCoverPath} style={btnOutline}>Set</button>
           </div>
           <label style={{ ...btnOutline, display: 'inline-block', textAlign: 'center', cursor: 'pointer' }}>
-            Upload Cover <input type="file" accept="image/*" onChange={handleCoverUpload} style={{ display: 'none' }} />
+            Upload Cover <input type="file" accept="image/*,video/*" onChange={handleCoverUpload} style={{ display: 'none' }} />
           </label>
         </div>
 
@@ -206,11 +210,15 @@ function ProjectEditor({ project, onSave, onCancel, isSaving }: {
 
         {/* Screenshots */}
         <div>
-          <label style={labelStyle}>Screenshots</label>
+          <label style={labelStyle}>Screenshots / Videos</label>
           <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
             {form.screenshots.map((src, i) => (
               <div key={i} style={{ width: '120px', height: '75px', position: 'relative', border: '1px solid rgba(255,255,255,0.08)', overflow: 'hidden' }}>
-                <img src={src} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                {isMediaVideo(src) ? (
+                  <video src={src} autoPlay loop muted playsInline style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                ) : (
+                  <img src={src} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                )}
                 <button onClick={() => removeSS(i)} style={{ position: 'absolute', top: '2px', right: '2px', background: 'rgba(0,0,0,0.8)', color: '#e84040', border: 'none', cursor: 'pointer', fontSize: '14px', width: '20px', height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
               </div>
             ))}
@@ -220,7 +228,7 @@ function ProjectEditor({ project, onSave, onCancel, isSaving }: {
             <button onClick={addPath} style={btnOutline}>Add</button>
           </div>
           <label style={{ ...btnOutline, display: 'inline-block', textAlign: 'center', cursor: 'pointer' }}>
-            Upload <input type="file" accept="image/*" multiple onChange={handleUpload} style={{ display: 'none' }} />
+            Upload <input type="file" accept="image/*,video/*" multiple onChange={handleUpload} style={{ display: 'none' }} />
           </label>
         </div>
 
@@ -307,12 +315,10 @@ export default function AdminPage() {
   const handleSave = async (p: Project) => {
     setIsSaving(true);
     try {
-      // Upload cover if it's a base64 string
       if (p.cover && p.cover.startsWith('data:image')) {
         p.cover = await uploadImage(p.cover, `projects/${p.id}/cover`);
       }
       
-      // Upload screenshots if they are base64 strings
       const uploadedScreenshots = await Promise.all(p.screenshots.map(async (src, i) => {
         if (src.startsWith('data:image')) return await uploadImage(src, `projects/${p.id}/screenshot_${i}`);
         return src;
@@ -394,7 +400,7 @@ export default function AdminPage() {
           )}
 
           {tab === 'tech' && (
-            <TechEditor categories={techStack} onSave={(c) => { setTechStack(c); saveTechStack(c); }} />
+            <TechEditor categories={techStack} onSave={(c) => { saveTechStack(c); alert("Tech Stack Saved!"); }} />
           )}
         </div>
       </section>

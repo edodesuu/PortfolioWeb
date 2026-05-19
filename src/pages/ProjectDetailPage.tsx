@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import Layout from '../components/Layout';
 import Navbar from '../components/Navbar';
 import Footer from '../sections/Footer';
-import { usePortfolio, localized } from '../lib/store';
+import { usePortfolio, localized, isMediaVideo } from '../lib/store';
 import { fadeInUp } from '../lib/animations';
 
 export default function ProjectDetailPage() {
@@ -105,7 +105,11 @@ export default function ProjectDetailPage() {
               <div style={{ display: 'grid', gridTemplateColumns: project.screenshots.length === 1 ? '1fr' : 'repeat(auto-fit, minmax(min(100%, 500px), 1fr))', gap: '1.5rem' }}>
                 {project.screenshots.map((src, i) => (
                   <div key={i} style={{ aspectRatio: '16/10', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.06)', cursor: 'zoom-in' }} onClick={() => setSelectedImage(src)}>
-                    <img src={src} alt={`${title} ${i + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    {isMediaVideo(src) ? (
+                      <video src={src} autoPlay loop muted playsInline style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    ) : (
+                      <img src={src} alt={`${title} ${i + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    )}
                   </div>
                 ))}
               </div>
@@ -127,7 +131,11 @@ export default function ProjectDetailPage() {
       {selectedImage && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.9)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }} onClick={() => setSelectedImage(null)}>
           <button style={{ position: 'absolute', top: '2rem', right: '2rem', background: 'none', border: 'none', color: '#fff', fontSize: '2rem', cursor: 'pointer' }} onClick={() => setSelectedImage(null)}>&times;</button>
-          <img src={selectedImage} alt="Fullscreen" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} onClick={(e) => e.stopPropagation()} />
+          {isMediaVideo(selectedImage) ? (
+            <video src={selectedImage} autoPlay loop controls style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} onClick={(e) => e.stopPropagation()} />
+          ) : (
+            <img src={selectedImage} alt="Fullscreen" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} onClick={(e) => e.stopPropagation()} />
+          )}
         </div>
       )}
       <Footer />

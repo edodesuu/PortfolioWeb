@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import SectionWrapper from '../components/SectionWrapper';
-import { usePortfolio, localized } from '../lib/store';
+import { usePortfolio, localized, isMediaVideo } from '../lib/store';
 import { staggerContainer, staggerItem, fadeInUp, viewportConfig } from '../lib/animations';
 
 export default function Projects() {
@@ -23,7 +23,11 @@ export default function Projects() {
               className="neon-border group">
               <div style={{ aspectRatio: '16/10', background: 'rgba(255,255,255,0.02)', position: 'relative', overflow: 'hidden' }}>
                 {project.cover ? (
-                  <img src={project.cover} alt={localized(project, 'title', lang)} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  isMediaVideo(project.cover) ? (
+                    <video src={project.cover} autoPlay loop muted playsInline style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  ) : (
+                    <img src={project.cover} alt={localized(project, 'title', lang)} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  )
                 ) : (
                   <>
                     <div className="dot-grid" style={{ position: 'absolute', inset: 0, opacity: 0.3 }} />
